@@ -14,11 +14,7 @@ def add_rows(draw, font, rows, start_x, y, step_x):
 
 # Builds the output image path safely
 def get_output_path(vbcd, i):
-    out_path = os.path.join(vbcd, "image", f"{i}edited_loading_sheet.jpg")
-    out_dir = os.path.dirname(out_path)
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir, exist_ok=True)
-    return out_path
+    return os.path.join(vbcd, "image", f"{i}edited_loading_sheet.jpg")
 
 def get_font_size(vbcd, size):
     font_path = os.path.join(vbcd, "modules3", "ARIAL.TTF")

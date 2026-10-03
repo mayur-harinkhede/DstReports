@@ -1,13 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
 venv/
 myenv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.env
+env/
+ENV/
+
+# Distribution & Generated Reports
 reports/*.pdf
+!reports/.gitkeep
 image/*.jpg
-image/*.png
 !image/placeholder
+!modules3/loadingSheet.jpg
+
+# Scratch/temp
 scratch/
 .system_generated/
+
+# OS files
+.DS_Store
+Thumbs.db

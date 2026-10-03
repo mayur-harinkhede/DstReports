@@ -3,11 +3,6 @@ import sys
 import time
 
 # --- Dynamic Path Mapping Patch (resolves Windows C:\Users\TAPF... paths to local server paths) ---
-import tempfile
-
-def _is_serverless():
-    return bool(os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'))
-
 _original_join = os.path.join
 
 def _mocked_join(*args):
@@ -34,17 +29,6 @@ def _mocked_join(*args):
             result = result.replace('\\', '/')
         else:
             result = result.replace('/', '\\')
-            
-        # On serverless platforms (like Vercel), redirect runtime-generated folders ('reports' and 'image') to /tmp
-        if _is_serverless():
-            norm = result.replace('\\', '/')
-            proj_norm = local_project_path.replace('\\', '/')
-            if norm == f"{proj_norm}/reports" or norm.startswith(f"{proj_norm}/reports/"):
-                suffix = norm[len(f"{proj_norm}/reports"):]
-                result = f"/tmp/reports{suffix}"
-            elif norm == f"{proj_norm}/image" or norm.startswith(f"{proj_norm}/image/"):
-                suffix = norm[len(f"{proj_norm}/image"):]
-                result = f"/tmp/image{suffix}"
             
     return result
 
@@ -151,19 +135,10 @@ def send_telegram_in_background(pdf_path, send_group_1, send_group_2, report_typ
         print(f"[Background Telegram] Error sending PDF to Telegram: {e}")
 
 @app.route('/')
-@app.route('/api')
-@app.route('/api/index')
-@app.route('/api/index.py')
 def index():
     return render_template('index.html')
 
-@app.route('/favicon.ico')
-def favicon():
-    return ('', 204)
-
 @app.route('/generate/<report_type>')
-@app.route('/api/generate/<report_type>')
-@app.route('/api/index.py/generate/<report_type>')
 def generate_report(report_type):
     # Only allow one generation at a time to prevent file conflicts
     with generation_lock:
@@ -276,8 +251,9 @@ def generate_report(report_type):
             return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
     print("--------------------------------------------------")
-    print("Starting TAPF Distribution Report Server...")
-    print("Access locally at: http://127.0.0.1:5000")
+    print(f"Starting TAPF Distribution Report Server on port {port}...")
     print("--------------------------------------------------")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=port)
+
