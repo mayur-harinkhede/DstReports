@@ -19,21 +19,11 @@ def convert_images_to_pdf(image_folder, output_pdf_path):
         print("No images found in the folder.")
         return
 
-    # Open images, resize to a friendly width, and convert to RGB
+    # Open images and convert to RGB (already pre-scaled to 1000px in loading.py)
     image_list = []
-    target_width = 1000  # Downscales resolution for PDF compilation (saves 95% space but keeps exact format)
-    
     for file in image_files:
         image_path = os.path.join(image_folder, file)
-        img = Image.open(image_path)
-        
-        # Calculate aspect-ratio scale
-        w, h = img.size
-        if w > target_width:
-            new_h = int(h * (target_width / w))
-            img = img.resize((target_width, new_h), Image.Resampling.LANCZOS)
-            
-        img = img.convert('RGB')
+        img = Image.open(image_path).convert('RGB')
         image_list.append(img)
 
     # Save all images into one PDF file with quality optimization
@@ -44,7 +34,15 @@ def convert_images_to_pdf(image_folder, output_pdf_path):
         "PDF", 
         save_all=True, 
         append_images=rest_images,
-        quality=60,          # JPEG quality compression
-        optimize=True        # Optimize file size
+        quality=65,
+        optimize=True
     )
+    
+    # Explicitly close images to free memory immediately
+    for img in image_list:
+        try:
+            img.close()
+        except Exception:
+            pass
+            
     print(f"Compressed PDF saved to {output_pdf_path}")

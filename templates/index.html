@@ -635,8 +635,14 @@
                 const response = await fetch(url);
                 
                 if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error || `Server responded with status ${response.status}`);
+                    let errMsg = `Server error (${response.status})`;
+                    try {
+                        const errData = await response.json();
+                        errMsg = errData.error || errMsg;
+                    } catch (e) {
+                        errMsg = `Server error ${response.status}: Generation timed out or failed.`;
+                    }
+                    throw new Error(errMsg);
                 }
 
                 // Retrieve file blob
