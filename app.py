@@ -151,10 +151,19 @@ def send_telegram_in_background(pdf_path, send_group_1, send_group_2, report_typ
         print(f"[Background Telegram] Error sending PDF to Telegram: {e}")
 
 @app.route('/')
+@app.route('/api')
+@app.route('/api/index')
+@app.route('/api/index.py')
 def index():
     return render_template('index.html')
 
+@app.route('/favicon.ico')
+def favicon():
+    return ('', 204)
+
 @app.route('/generate/<report_type>')
+@app.route('/api/generate/<report_type>')
+@app.route('/api/index.py/generate/<report_type>')
 def generate_report(report_type):
     # Only allow one generation at a time to prevent file conflicts
     with generation_lock:
