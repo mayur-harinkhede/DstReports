@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAPF Distribution Reports</title>
+    <!-- Modern Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: rgba(22, 27, 34, 0.4);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --primary-accent: #7928ca;
+            --primary-glow: #ff007f;
+            --secondary-accent: #00f2fe;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Abstract glowing background blobs */
+        .glow-blob-1 {
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(121, 40, 202, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: 1;
+            pointer-events: none;
+            filter: blur(80px);
+        }
+
+        .glow-blob-2 {
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: 1;
+            pointer-events: none;
+            filter: blur(80px);
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 30px auto;
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Header design */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 30%, #a370f7 70%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(121, 40, 202, 0.15);
+        }
+
+        /* Horizontal Telegram send bar style */
+        .telegram-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 12px 25px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .bar-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bar-options {
+            display: flex;
+            gap: 30px;
+        }
+
+        .bar-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        /* Fancy Switch Style checkboxes */
+        .option-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .option-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .option-label {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: linear-gradient(135deg, var(--primary-accent) 0%, var(--primary-glow) 100%);
+            box-shadow: 0 0 10px rgba(121, 40, 202, 0.5);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Nice select box design */
+        .select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .select-control {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            appearance: none;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-control option {
+            background-color: #161b22;
+            color: #fff;
+        }
+
+        .select-control:focus {
+            border-color: var(--secondary-accent);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 0.8rem;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        /* Checkbox groups for extra items (horizontal alignment) */
+        .checkbox-group {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 5px;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #fff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-label input {
+            cursor: pointer;
+            accent-color: #00f2fe; /* cyan glow color */
+            width: 14px;
+            height: 14px;
+        }
+
+        .checkbox-label:hover {
+            color: #00f2fe;
+        }
+
+        /* Spacious Flex Layout for Report Cards */
+        .cards-grid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px; /* Spacious gaps so they don't stick together */
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 992px) {
+            .cards-grid {
+                flex-direction: column;
+                gap: 30px;
+            }
+        }
+
+        /* Report Cards styling */
+        .report-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 35px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.2);
+            width: 320px;  /* Fixed matching width for identical look */
+            height: 280px; /* Fixed matching height */
+        }
+
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, transparent);
+            transition: all 0.4s ease;
+        }
+
+        .report-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .report-card.cumulative-card:hover::before {
+            background: linear-gradient(90deg, #7928ca, #ff007f);
+        }
+
+        .report-card.delivery-card:hover::before {
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+        }
+
+        .report-card.loading-card:hover::before {
+            background: linear-gradient(90deg, #f857a6, #ff5858);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        .card-content h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        /* Action Buttons with subtle animations */
+        .btn-generate {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 16px;
+            border-radius: 14px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            outline: none;
+            overflow: hidden;
+        }
+
+        .btn-generate:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: scale(1.02);
+        }
+
+        /* Card-specific glowing button styles on hover */
+        .cumulative-card:hover .btn-generate {
+            background: linear-gradient(135deg, var(--primary-accent) 0%, var(--primary-glow) 100%);
+            box-shadow: 0 0 15px rgba(121, 40, 202, 0.4);
+            border-color: transparent;
+        }
+
+        .delivery-card:hover .btn-generate {
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            box-shadow: 0 0 15px rgba(0, 198, 255, 0.4);
+            border-color: transparent;
+        }
+
+        .loading-card:hover .btn-generate {
+            background: linear-gradient(135deg, #f857a6 0%, #ff5858 100%);
+            box-shadow: 0 0 15px rgba(248, 87, 166, 0.4);
+            border-color: transparent;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* States classes */
+        .btn-generate.loading {
+            pointer-events: none;
+            opacity: 0.8;
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: none !important;
+        }
+
+        .btn-generate.loading .spinner {
+            display: inline-block;
+        }
+
+        .btn-generate.success {
+            background: var(--success-color) !important;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.4) !important;
+            border-color: transparent !important;
+            pointer-events: none;
+        }
+
+        .btn-generate.error-state {
+            background: var(--error-color) !important;
+            box-shadow: 0 0 15px rgba(244, 67, 54, 0.4) !important;
+            border-color: transparent !important;
+        }
+
+        /* Status messages style */
+        .status-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: rgba(22, 27, 34, 0.9);
+            border: 1px solid var(--card-border);
+            color: #fff;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .status-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .status-toast.error-toast {
+            border-color: rgba(244, 67, 54, 0.4);
+            background: rgba(30, 10, 10, 0.95);
+        }
+
+        .status-toast.success-toast {
+            border-color: rgba(76, 175, 80, 0.4);
+            background: rgba(10, 30, 10, 0.95);
+        }
+
+        footer {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-blob-1"></div>
+    <div class="glow-blob-2"></div>
+
+    <div class="container">
+        <header>
+            <h1>TAPF Distribution Center</h1>
+        </header>
+
+        <!-- Horizontal Telegram Send Bar -->
+        <div class="telegram-bar">
+            <span class="bar-title">📢 Telegram Send</span>
+            <div class="bar-options">
+                <div class="bar-option">
+                    <span>Internal Group</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sendTelegram1">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="bar-option">
+                    <span>Delivery Group</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sendTelegram2">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="cards-grid">
+            <!-- Card 1: Cumulative -->
+            <div class="report-card cumulative-card">
+                <div class="card-content">
+                    <span class="card-icon">📊</span>
+                    <h2>Cumulative Sheet</h2>
+                    <div class="select-wrapper" style="margin-top: 20px; margin-bottom: 5px; width: 100%;">
+                        <select id="snackRoutesSelect" class="select-control">
+                            <option value="all">All Routes (Snacks)</option>
+                            <option value="first">First Routes (1-32)</option>
+                            <option value="second">Second Routes (33-65)</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="generateReport('cumulative', this)" class="btn-generate">
+                    <div class="spinner"></div>
+                    <span>Generate & Download</span>
+                </button>
+            </div>
+
+            <!-- Card 2: Delivery -->
+            <div class="report-card delivery-card">
+                <div class="card-content">
+                    <span class="card-icon">🚚</span>
+                    <h2>Delivery Sheet</h2>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" id="extra_curd"> <span>Curd</span></label>
+                        <label class="checkbox-label"><input type="checkbox" id="extra_snack"> <span>Snack</span></label>
+                        <label class="checkbox-label"><input type="checkbox" id="extra_pickle"> <span>Pickle</span></label>
+                        <label class="checkbox-label"><input type="checkbox" id="extra_chikki"> <span>Chikki</span></label>
+                    </div>
+                </div>
+                <button onclick="generateReport('delivery', this)" class="btn-generate">
+                    <div class="spinner"></div>
+                    <span>Generate & Download</span>
+                </button>
+            </div>
+
+            <!-- Card 3: Loading -->
+            <div class="report-card loading-card">
+                <div class="card-content">
+                    <span class="card-icon">📦</span>
+                    <h2>Loading Sheet</h2>
+                </div>
+                <button onclick="generateReport('loading', this)" class="btn-generate">
+                    <div class="spinner"></div>
+                    <span>Generate & Download</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Toast Notifications -->
+    <div id="statusToast" class="status-toast">
+        <span id="toastIcon">ℹ️</span>
+        <span id="toastMessage">Preparing...</span>
+    </div>
+
+    <footer>
+        TAPF Distribution System &copy; 2026. Made with ❤️ for Kitchen operations.
+    </footer>
+
+    <script>
+        function showToast(message, type = 'info', duration = 4000) {
+            const toast = document.getElementById('statusToast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.textContent = message;
+            
+            // Set styles based on type
+            toast.className = 'status-toast';
+            if (type === 'success') {
+                toast.classList.add('success-toast');
+                toastIcon.textContent = '✅';
+            } else if (type === 'error') {
+                toast.classList.add('error-toast');
+                toastIcon.textContent = '❌';
+            } else {
+                toastIcon.textContent = '⚡';
+            }
+
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        async function generateReport(type, buttonEl) {
+            const originalText = buttonEl.querySelector('span').textContent;
+            
+            // Set button to loading state
+            buttonEl.classList.add('loading');
+            buttonEl.querySelector('span').textContent = 'Generating PDF...';
+
+            const extraCurd = document.getElementById('extra_curd').checked ? 'y' : 'n';
+            const extraSnack = document.getElementById('extra_snack').checked ? 'y' : 'n';
+            const extraPickle = document.getElementById('extra_pickle').checked ? 'y' : 'n';
+            const extraChikki = document.getElementById('extra_chikki').checked ? 'y' : 'n';
+            const sendTelegram1 = document.getElementById('sendTelegram1').checked ? 'y' : 'n';
+            const sendTelegram2 = document.getElementById('sendTelegram2').checked ? 'y' : 'n';
+            const snackChoice = document.getElementById('snackRoutesSelect') ? document.getElementById('snackRoutesSelect').value : 'all';
+
+            showToast('Downloading report...', 'info');
+
+            try {
+                // Build query url
+                const url = `/generate/${type}?extra_curd=${extraCurd}&extra_snack=${extraSnack}&extra_pickle=${extraPickle}&extra_chikki=${extraChikki}&send_group_1=${sendTelegram1}&send_group_2=${sendTelegram2}&snack_choice=${snackChoice}`;
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error || `Server responded with status ${response.status}`);
+                }
+
+                // Retrieve file blob
+                const blob = await response.blob();
+                
+                // Get filename from Content-Disposition header if possible
+                const disposition = response.headers.get('Content-Disposition');
+                let filename = `${type}_sheet.pdf`;
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                    const matches = filenameRegex.exec(disposition);
+                    if (matches != null && matches[1]) { 
+                        filename = matches[1].replace(/['"]/g, '');
+                    }
+                }
+
+                // Trigger download in browser
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(downloadUrl);
+
+                // Success visual state
+                buttonEl.classList.remove('loading');
+                buttonEl.classList.add('success');
+                buttonEl.querySelector('span').textContent = 'Downloaded!';
+                showToast('Downloaded successfully!', 'success');
+
+                setTimeout(() => {
+                    buttonEl.classList.remove('success');
+                    buttonEl.querySelector('span').textContent = originalText;
+                }, 3000);
+
+            } catch (err) {
+                console.error(err);
+                
+                // Error visual state
+                buttonEl.classList.remove('loading');
+                buttonEl.classList.add('error-state');
+                buttonEl.querySelector('span').textContent = 'Failed';
+                showToast(err.message, 'error', 6000);
+
+                setTimeout(() => {
+                    buttonEl.classList.remove('error-state');
+                    buttonEl.querySelector('span').textContent = originalText;
+                }, 4000);
+            }
+        }
+    </script>
+</body>
+</html>
